@@ -126,5 +126,31 @@ def patient_registration():
         return response
 
 
+@app.route('/view-patient/<int:patient_id>', methods=["GET"])
+def view_patient(patient_id):
+    response = {}
+    with sqlite3.connect("dentists.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM patients WHERE patient_id=" + str(patient_id))
+        patient = cursor.fetchone()
+        response['data'] = patient
+        response['message'] = "Fetched the patient successfully"
+        response['status_code'] = 200
+    return response
+
+
+@app.route('/view-patient/', methods=['GET'])
+def fetch_patients():
+    response = {}
+    with sqlite3.connect("dentists.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM patients")
+
+        response['status_code'] = 200
+        response['message'] = "Fetched all patients"
+        response['data'] = cursor.fetchall()
+    return response
+
+
 if __name__ == "__main__":
     app.run()
