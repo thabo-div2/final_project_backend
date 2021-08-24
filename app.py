@@ -62,13 +62,29 @@ def init_illness_table():
     conn.close()
 
 
+# initialising appointments table with a foreign key linking to the patients
+def init_appointments_table():
+    with sqlite3.connect("dentists.db") as conn:
+        conn.execute("CREATE TABLE IF NOT EXISTS appointments ("
+                     "first_name TEXT NOT NULL,"
+                     "last_name TEXT NOT NULL,"
+                     "type TEXT NOT NULL,"
+                     "booking_date DATE,"
+                     "patient_id INTEGER,"
+                     "CONSTRAINT fk_patients FOREIGN KEY (patient_id) REFERENCES patients(patient_id))")
+        print("appointments table created successfully")
+    conn.close()
+
+
 init_admin_table()
 init_patients_table()
 init_illness_table()
+init_appointments_table()
 
 
 app = Flask(__name__)
 app.debug = True
+CORS(app)
 
 
 @app.route('/', methods=['GET'])
@@ -192,6 +208,38 @@ def patient_registration():
         return response
 
 
+@app.route('/appointment/<int:patient_id>', methods=["POST"])
+def appointment(patient_id):
+    response = {}
+    if request.method == "POST":
+        first_name = request.json['first_name']
+        last_name = request.json['last_name']
+        a_type = request.json['type']
+        booking_date = datetime.now()
+        patient_id = patient_id
+
+        with sqlite3.connect("dentists.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO appointments ("
+                           "first_name,"
+                           "last_name,"
+                           "type,"
+                           "booking_date,"
+                           "patient_id) VALUES(?, ?, ?, ?, ?)",
+                           (first_name, last_name, a_type, booking_date, patient_id))
+            conn.commit()
+            response['message'] = "appointment made successfully"
+            response['status_code'] = 200
+            response['data'] = {
+                "first name": first_name,
+                "last_name": last_name,
+                "type": a_type,
+                "booking_date": booking_date,
+                "patient_id": patient_id
+            }
+        return response
+
+
 @app.route('/view-patient/<int:patient_id>', methods=["GET"])
 def view_patient(patient_id):
     response = {}
@@ -262,6 +310,74 @@ def view_illness(patient_id):
         response['message'] = "Success"
         response['status_code'] = 200
     return response
+
+
+@app.route('/delete-patient/<int:patient_id>')
+def delete_patient(patient_id):
+    response = {}
+    with sqlite3.connect("dentists.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM patients WHERE patient_id=" + str(patient_id))
+        conn.commit()
+
+        response['status_code'] = 200
+        response['message'] = "Patient deleted successfully"
+    return response
+
+
+@app.route("/delete-illness/<int:patient_id>")
+def delete_illness(patient_id):
+    response = {}
+    with sqlite3.connect("dentists.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM illness WHERE patient_id=" + str(patient_id))
+        conn.commit()
+
+        response['status_code'] = 200
+        response['message'] = "Record deleted successfully"
+    return response
+
+
+@app.route('/delete-appointment/<int:patient_id>')
+def delete_appointment(patient_id):
+    response = {}
+    with sqlite3.connect("dentists.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM appointment WHERE patient_id=" + str(patient_id))
+        conn.commit()
+
+        response['status_code'] = 200
+        response['message'] = "Appointment deleted successfully"
+    return response
+
+
+@app.route('/edit-patient/<int:patient_id>', methods=['PUT'])
+def edit_patient(patient_id):
+    response = {}
+    if request.method == "PUT":
+        with sqlite3.connect("dentists.db") as conn:
+            incoming_data = dict(request.json)
+            conn.row_factory = dict_factory
+            put_data = {}
+
+            if incoming_data.get("email") is not None:
+                put_data['email'] = incoming_data.get("email")
+                with sqlite3.connect("dentists.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE patients SET email=? WHERE patient_id=?", (put_data["email"], patient_id))
+                    conn.commit()
+                    response['message'] = "Updated email was successfully"
+                    response['status_code'] = 200
+                return response
+            if incoming_data.get("address") is not None:
+                put_data['address'] = incoming_data.get("address")
+                with sqlite3.connect("dentists.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE patients SET address=? WHERE patient_id=?", (put_data["address"], patient_id))
+                    conn.commit()
+                    response['message'] = "Update successfully"
+                    response['status_code'] = 200
+                return response
 
 
 if __name__ == "__main__":
