@@ -154,7 +154,7 @@ def login():
             cursor.execute("SELECT * FROM admin WHERE username=? AND password=?", (username, password))
             admin = cursor.fetchone()
 
-        response['status_code']  = 200
+        response['status_code'] = 200
         response['data'] = admin
         return response
 
@@ -298,6 +298,36 @@ def fetch_patients():
     return response
 
 
+@app.route('/view-appointment/<int:patient_id>', methods=['GET'])
+def fetch_appointment(patient_id):
+    response = {}
+    with sqlite3.connect("dentists.db") as conn:
+        conn.row_factory = dict_factory
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM appointments WHERE patient_id=" + str(patient_id))
+        date_check = cursor.fetchone()
+
+        response['status_code'] = 200
+        response['message'] = "Fetch one appointment"
+        response['data'] = date_check
+    return response
+
+
+@app.route('/view-appointment/', methods=['GET'])
+def view_appointments():
+    response = {}
+    # route to check all appointments
+    with sqlite3.connect("dentists.db") as conn:
+        conn.row_factory = dict_factory
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM appointments")
+
+        response['status_code'] = 200
+        response['message'] = "Displaying appointments"
+        response['data'] = cursor.fetchall()
+    return response
+
+
 @app.route('/illness/<int:patient_id>', methods=['POST'])
 def illness(patient_id):
     response = {}
@@ -417,6 +447,96 @@ def edit_patient(patient_id):
                     response['message'] = "Update successfully"
                     response['status_code'] = 200
                 return response
+
+
+@app.route('/edit-illness/<int:patient_id>', methods=["PUT"])
+def edit_illness(patient_id):
+    response = {}
+    if request.method == "PUT":
+        with sqlite3.connect("dentists.db") as conn:
+            incoming_data = dict(request.json)
+            conn.row_factory = dict_factory
+            put_data = {}
+            if incoming_data.get("name") is not None:
+                put_data["name"] = incoming_data.get("name")
+                with sqlite3.connect("dentists.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE illness SET name=? WHERE patient_id=?",
+                                   (put_data["name"], patient_id))
+                    conn.commit()
+                    response['message'] = "Update successfully"
+                    response['status_code'] = 200
+                return response
+            if incoming_data.get("type") is not None:
+                put_data["type"] = incoming_data.get("type")
+                with sqlite3.connect("dentists.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE illness SET type=? WHERE patient_id=?",
+                                   (put_data["type"], patient_id))
+                    response['message'] = "Update successfully"
+                    response['status_code'] = 200
+                return response
+            if incoming_data.get("description") is not None:
+                put_data["description"] = incoming_data.get("description")
+                with sqlite3.connect("dentists.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE illness SET description=? WHERE patient_id=?",
+                                   (put_data["description"], patient_id))
+                    response['message'] = "Update successfully"
+                    response['status_code'] = 200
+                return response
+
+
+@app.route('/edit-appointment/<int:patient_id>', methods=["PUT"])
+def edit_appointment(patient_id):
+    response = {}
+    ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
+    if request.method == "PUT":
+        with sqlite3.connect("dentists.db") as conn:
+            incoming_data = dict(request.json)
+            conn.row_factory = dict_factory
+            put_data = {}
+            if incoming_data.get("email") is not None:
+                put_data["email"] = incoming_data.get("email")
+                if re.search(ex, put_data["email"]):
+                    with sqlite3.connect("dentists.db") as conn:
+                        cursor = conn.cursor()
+                        cursor.execute("UPDATE appointments SET email=? WHERE patient_id=?",
+                                       (put_data["email"], patient_id))
+                        response['message'] = "Update successfully"
+                        response['status_code'] = 200
+                    return response
+            if incoming_data.get("phone_num") is not None:
+                put_data["phone_num"] = incoming_data.get("phone_num")
+                with sqlite3.connect("dentists.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE appointments SET phone_num=? WHERE patient_id=?",
+                                   (put_data["phone_num"], patient_id))
+                    response['message'] = "Update successfully"
+                    response['status_code'] = 200
+                return response
+            if incoming_data.get("booking_date") is not None:
+                put_data["booking_date"] = incoming_data.get("booking_date")
+                with sqlite3.connect("dentists.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE appointments SET booking_date=? WHERE patient_id=?",
+                                   (put_data["booking_date"], patient_id))
+                    response['message'] = "Update successfully"
+                    response['status_code'] = 200
+                return response
+            if incoming_data.get("type") is not None:
+                put_data["type"] = incoming_data.get("type")
+                with sqlite3.connect("dentists.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE appointments SET type=? WHERE patient_id=?",
+                                   (put_data["type"], patient_id))
+                    response['message'] = "Update successfully"
+                    response['status_code'] = 200
+                return response
+    else:
+        if request.method != "PUT":
+            response['message'] = "Wrong method"
+            response['status_code'] = 400
 
 
 if __name__ == "__main__":
