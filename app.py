@@ -1,6 +1,6 @@
 # Class 2 Thabo Setsubi
 # Backend for the final Projects
-from flask import Flask, request, redirect
+from flask import Flask, request
 from flask_mail import Mail, Message
 from flask_cors import CORS
 from datetime import datetime
@@ -53,9 +53,9 @@ def init_patients_table():
 def init_illness_table():
     with sqlite3.connect("dentists.db") as conn:
         conn.execute("CREATE TABLE IF NOT EXISTS illness ("
-                     "name NOT NULL,"
-                     "type NOT NULL,"
-                     "description NOT NULL,"
+                     "name TEXT NOT NULL,"
+                     "type TEXT NOT NULL,"
+                     "description TEXT NOT NULL,"
                      "patient_id INTEGER,"
                      "CONSTRAINT fk_patients FOREIGN KEY (patient_id) REFERENCES patients(patient_id))")
         print("illness table created successfully")
@@ -68,8 +68,11 @@ def init_appointments_table():
         conn.execute("CREATE TABLE IF NOT EXISTS appointments ("
                      "first_name TEXT NOT NULL,"
                      "last_name TEXT NOT NULL,"
+                     "email TEXT NOT NULL,"
+                     "phone_num INTEGER NOT NULL,"
                      "type TEXT NOT NULL,"
                      "booking_date DATE,"
+                     "date_made DATE,"
                      "patient_id INTEGER,"
                      "CONSTRAINT fk_patients FOREIGN KEY (patient_id) REFERENCES patients(patient_id))")
         print("appointments table created successfully")
@@ -158,22 +161,21 @@ def login():
 
 @app.route('/patient', methods=['POST'])
 def patient_registration():
-    global phone_num, id_num
+    first_name = request.json['first_name']
+    last_name = request.json['last_name']
+    address = request.json['address']
+    email = request.json['email']
+    birth_date = request.json['birth_date']
+    gender = request.json['gender']
+    phone_num = request.json['phone_num']
+    id_num = request.json['id_num']
+    start_date = datetime.now()
     response = {}
     # to check if email is valid
     ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
     x = "Welcome to Setsubi Dentist Registry"
     try:
         if request.method == "POST":
-            first_name = request.form['first_name']
-            last_name = request.form['last_name']
-            address = request.form['address']
-            email = request.form['email']
-            birth_date = request.form['birth_date']
-            gender = request.form['gender']
-            phone_num = request.form['phone_num']
-            id_num = request.form['id_num']
-            start_date = datetime.now()
             if re.search(ex, email):
                 with sqlite3.connect("dentists.db") as conn:
                     cursor = conn.cursor()
@@ -223,34 +225,47 @@ def patient_registration():
 @app.route('/appointment/<int:patient_id>', methods=["POST"])
 def appointment(patient_id):
     response = {}
+    first_name = request.json['first_name']
+    last_name = request.json['last_name']
+    email = request.json['email']
+    phone_num = request.json['phone_num']
+    a_type = request.json['type']
+    booking_date = request.json['booking_date']
+    date_made = datetime.now()
+    patient_id = patient_id
+    # to check if email is valid
+    ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
     if request.method == "POST":
-        first_name = request.json['first_name']
-        last_name = request.json['last_name']
-        a_type = request.json['type']
-        booking_date = datetime.now()
-        patient_id = patient_id
-
-        with sqlite3.connect("dentists.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO appointments ("
-                           "first_name,"
-                           "last_name,"
-                           "type,"
-                           "booking_date,"
-                           "patient_id) VALUES(?, ?, ?, ?, ?)",
-                           (first_name, last_name, a_type, booking_date, patient_id))
-            conn.commit()
-            response['message'] = "appointment made successfully"
-            response['status_code'] = 200
-            response['data'] = {
-                "first name": first_name,
-                "last_name": last_name,
-                "type": a_type,
-                "booking_date": booking_date,
-                "patient_id": patient_id
-            }
-        return response
-
+        if re.search(ex, email):
+            with sqlite3.connect("dentists.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO appointments ("
+                               "first_name,"
+                               "last_name,"
+                               "email,"
+                               "phone_num,"
+                               "type,"
+                               "booking_date,"
+                               "date_made,"
+                               "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+                               (first_name, last_name, email, phone_num, a_type, booking_date, date_made, patient_id))
+                conn.commit()
+                msg = Message("Appointment", sender="lifechoiceslotto147@gmail.com", recipients=[email])
+                msg.body = "Appointment was made for:" + str(first_name) + "for the date of " + str(booking_date)
+                mail.send(msg)
+                response['message'] = "appointment made successfully"
+                response['status_code'] = 200
+                response['data'] = {
+                    "first name": first_name,
+                    "last_name": last_name,
+                    "phone_num": phone_num,
+                    "email": email,
+                    "type": a_type,
+                    "booking_date": booking_date,
+                    "date_made": date_made,
+                    "patient_id": patient_id
+                }
+            return response
 
 
 @app.route('/view-patient/<int:patient_id>', methods=["GET"])
