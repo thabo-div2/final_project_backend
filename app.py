@@ -85,6 +85,14 @@ init_appointments_table()
 app = Flask(__name__)
 app.debug = True
 CORS(app)
+# Setting up the flask mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'lifechoiceslotto147@gmail.com'
+app.config['MAIL_PASSWORD'] = 'lifechoices2021'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 
 
 @app.route('/', methods=['GET'])
@@ -154,6 +162,7 @@ def patient_registration():
     response = {}
     # to check if email is valid
     ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
+    x = "Welcome to Setsubi Dentist Registry"
     try:
         if request.method == "POST":
             first_name = request.form['first_name']
@@ -181,6 +190,9 @@ def patient_registration():
                                    (first_name, last_name, address, email, birth_date,
                                     gender, int(phone_num), int(id_num), start_date))
                     conn.commit()
+                    msg = Message("Registered Successfully", sender="lifechoiceslotto147@gmail.com", recipients=[email])
+                    msg.body = x
+                    mail.send(msg)
                     response['message'] = "Registered patient successfully"
                     response['data'] = {
                         "first name": first_name,
@@ -238,6 +250,7 @@ def appointment(patient_id):
                 "patient_id": patient_id
             }
         return response
+
 
 
 @app.route('/view-patient/<int:patient_id>', methods=["GET"])
@@ -373,7 +386,18 @@ def edit_patient(patient_id):
                 put_data['address'] = incoming_data.get("address")
                 with sqlite3.connect("dentists.db") as conn:
                     cursor = conn.cursor()
-                    cursor.execute("UPDATE patients SET address=? WHERE patient_id=?", (put_data["address"], patient_id))
+                    cursor.execute("UPDATE patients SET address=? WHERE patient_id=?",
+                                   (put_data["address"], patient_id))
+                    conn.commit()
+                    response['message'] = "Update successfully"
+                    response['status_code'] = 200
+                return response
+            if incoming_data.get("phone_num") is not None:
+                put_data['phone_num'] = incoming_data.get("phone_num")
+                with sqlite3.connect("dentists.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE patients SET phone_num=? WHERE patient_id=?",
+                                   (put_data["phone_num"], patient_id))
                     conn.commit()
                     response['message'] = "Update successfully"
                     response['status_code'] = 200
