@@ -8,6 +8,82 @@ import sqlite3
 import re
 
 
+class Database:
+    def __init__(self):
+        self.conn = sqlite3.connect("dentists.db")
+        self.cursor = self.conn.cursor()
+        self.init_admin_table()
+        self.init_patients_table()
+        self.init_illness_table()
+        self.init_appointments_table()
+
+    # Creating Database
+    # Initialising admin table
+    def init_admin_table(self):
+        conn = sqlite3.connect('dentists.db')
+        print("Opened database successfully")
+
+        conn.execute("CREATE TABLE IF NOT EXISTS admin (admin_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                     "first_name TEXT NOT NULL,"
+                     "last_name TEXT NOT NULL,"
+                     "email TEXT NOT NULL,"
+                     "username TEXT NOT NULL,"
+                     "password TEXT NOT NULL)")
+        print("admin table created successfully")
+        conn.close()
+        return self.init_admin_table
+
+    # Initialising patients table
+    def init_patients_table(self):
+        with sqlite3.connect("dentists.db") as conn:
+            conn.execute("CREATE TABLE IF NOT EXISTS patients (patient_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                         "first_name TEXT NOT NULL,"
+                         "last_name TEXT NOT NULL,"
+                         "address TEXT NOT NULL,"
+                         "email TEXT NOT NULL,"
+                         "birth_date DATE,"
+                         "gender TEXT NOT NULL,"
+                         "phone_num INTEGER NOT NULL,"
+                         "id_num INTEGER NOT NULL,"
+                         "start_date DATE)")
+            print("patients table created successfully")
+        conn.close()
+        return self.init_patients_table
+
+    # initialising illness table with a foreign table linking to the patients
+    def init_illness_table(self):
+        with sqlite3.connect("dentists.db") as conn:
+            conn.execute("CREATE TABLE IF NOT EXISTS illness ("
+                         "name TEXT NOT NULL,"
+                         "type TEXT NOT NULL,"
+                         "description TEXT NOT NULL,"
+                         "patient_id INTEGER,"
+                         "CONSTRAINT fk_patients FOREIGN KEY (patient_id) REFERENCES patients(patient_id))")
+            print("illness table created successfully")
+        conn.close()
+        return self.init_illness_table
+
+    # initialising appointments table with a foreign key linking to the patients
+    def init_appointments_table(self):
+        with sqlite3.connect("dentists.db") as conn:
+            conn.execute("CREATE TABLE IF NOT EXISTS appointments ("
+                         "first_name TEXT NOT NULL,"
+                         "last_name TEXT NOT NULL,"
+                         "email TEXT NOT NULL,"
+                         "phone_num INTEGER NOT NULL,"
+                         "type TEXT NOT NULL,"
+                         "booking_date DATE,"
+                         "date_made DATE,"
+                         "patient_id INTEGER,"
+                         "CONSTRAINT fk_patients FOREIGN KEY (patient_id) REFERENCES patients(patient_id))")
+            print("appointments table created successfully")
+        conn.close()
+        return self.init_appointments_table
+
+
+Database()
+
+
 # to make the data into a dictionary
 def dict_factory(cursor, row):
     d = {}
@@ -16,77 +92,9 @@ def dict_factory(cursor, row):
     return d
 
 
-# Creating Database
-# Initialising admin table
-def init_admin_table():
-    conn = sqlite3.connect('dentists.db')
-    print("Opened database successfully")
-
-    conn.execute("CREATE TABLE IF NOT EXISTS admin (admin_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                 "first_name TEXT NOT NULL,"
-                 "last_name TEXT NOT NULL,"
-                 "email TEXT NOT NULL,"
-                 "username TEXT NOT NULL,"
-                 "password TEXT NOT NULL)")
-    print("admin table created successfully")
-    conn.close()
-
-
-# Initialising patients table
-def init_patients_table():
-    with sqlite3.connect("dentists.db") as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS patients (patient_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                     "first_name TEXT NOT NULL,"
-                     "last_name TEXT NOT NULL,"
-                     "address TEXT NOT NULL,"
-                     "email TEXT NOT NULL,"
-                     "birth_date DATE,"
-                     "gender TEXT NOT NULL,"
-                     "phone_num INTEGER NOT NULL,"
-                     "id_num INTEGER NOT NULL,"
-                     "start_date DATE)")
-        print("patients table created successfully")
-    conn.close()
-
-
-# initialising illness table with a foreign table linking to the patients
-def init_illness_table():
-    with sqlite3.connect("dentists.db") as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS illness ("
-                     "name TEXT NOT NULL,"
-                     "type TEXT NOT NULL,"
-                     "description TEXT NOT NULL,"
-                     "patient_id INTEGER,"
-                     "CONSTRAINT fk_patients FOREIGN KEY (patient_id) REFERENCES patients(patient_id))")
-        print("illness table created successfully")
-    conn.close()
-
-
-# initialising appointments table with a foreign key linking to the patients
-def init_appointments_table():
-    with sqlite3.connect("dentists.db") as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS appointments ("
-                     "first_name TEXT NOT NULL,"
-                     "last_name TEXT NOT NULL,"
-                     "email TEXT NOT NULL,"
-                     "phone_num INTEGER NOT NULL,"
-                     "type TEXT NOT NULL,"
-                     "booking_date DATE,"
-                     "date_made DATE,"
-                     "patient_id INTEGER,"
-                     "CONSTRAINT fk_patients FOREIGN KEY (patient_id) REFERENCES patients(patient_id))")
-        print("appointments table created successfully")
-    conn.close()
-
-
-init_admin_table()
-init_patients_table()
-init_illness_table()
-init_appointments_table()
-
-
 app = Flask(__name__)
 app.debug = True
+# This is to help with the frontend
 CORS(app)
 # Setting up the flask mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'

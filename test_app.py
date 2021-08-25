@@ -5,6 +5,14 @@ from app import app
 
 class ApiTest(unittest.TestCase):
 
+    # testing login route
+    def login(self, username, password):
+        test = app.test_client(self)
+        return test.post('/login', data=dict(
+            username=username,
+            password=password
+        ), follow_redirects=True)
+
     # check if responses is 200
     def test_user_register(self):
         test = app.test_client(self)
