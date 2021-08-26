@@ -125,27 +125,46 @@ def admin_registration():
     password = request.json["password"]
     # to check if email is valid
     ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
-    if request.method == "POST":
-        if re.search(ex, email):
-            with sqlite3.connect("dentists.db") as conn:
-                cursor = conn.cursor()
-                cursor.execute("INSERT INTO admin("
-                               "first_name,"
-                               "last_name,"
-                               "email,"
-                               "username,"
-                               "password) VALUES(?, ?, ?, ?, ?)", (first_name, last_name, email, username, password))
-                conn.commit()
-                response['message'] = "admin registered successfully"
-                response['status_code'] = 201
-                response['data'] = {
-                    "first name": first_name,
-                    "last name": last_name,
-                    "email": email,
-                    "username": username,
-                    "password": password
-                }
-            return response
+    try:
+        if request.method == "POST":
+            if re.search(ex, email):
+                with sqlite3.connect("dentists.db") as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("INSERT INTO admin("
+                                   "first_name,"
+                                   "last_name,"
+                                   "email,"
+                                   "username,"
+                                   "password) VALUES(?, ?, ?, ?, ?)",
+                                   (first_name, last_name, email, username, password))
+                    conn.commit()
+                    response['message'] = "admin registered successfully"
+                    response['status_code'] = 201
+                    response['data'] = {
+                        "first name": first_name,
+                        "last name": last_name,
+                        "email": email,
+                        "username": username,
+                        "password": password
+                    }
+                return response
+        else:
+            if request.method != "POST":
+                response['message'] = "Incorrect method"
+                response['status_code'] = 400
+                return response
+    except ValueError:
+        response['message'] = "Incorrect values"
+        response['status_code'] = 400
+        return response
+    except ConnectionError:
+        response['message'] = "Connection Failed"
+        response['status_code'] = 500
+        return response
+    except TimeoutError:
+        response['message'] = "Connection Timeout"
+        response['status_code'] = 500
+        return response
 
 
 @app.route('/login', methods=["PATCH"])
@@ -165,6 +184,11 @@ def login():
         response['status_code'] = 200
         response['data'] = admin
         return response
+    else:
+        if request.method != "PATCH":
+            response['message'] = "Incorrect Method"
+            response['status_code'] = 400
+            return response
 
 
 @app.route('/patient', methods=['POST'])
