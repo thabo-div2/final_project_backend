@@ -444,7 +444,7 @@ def delete_appointment(patient_id):
     if request.method == "DELETE":
         with sqlite3.connect("dentists.db") as conn:
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM appointment WHERE patient_id=" + str(patient_id))
+            cursor.execute("DELETE FROM appointments WHERE patient_id=" + str(patient_id))
             conn.commit()
 
             response['status_code'] = 200
