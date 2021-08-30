@@ -402,43 +402,58 @@ def view_illness(patient_id):
     return response
 
 
-@app.route('/delete-patient/<int:patient_id>')
+@app.route('/delete-patient/<int:patient_id>', methods=["DELETE"])
 def delete_patient(patient_id):
     response = {}
-    with sqlite3.connect("dentists.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM patients WHERE patient_id=" + str(patient_id))
-        conn.commit()
+    if request.method == "DELETE":
+        with sqlite3.connect("dentists.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM patients WHERE patient_id=" + str(patient_id))
+            conn.commit()
 
-        response['status_code'] = 200
-        response['message'] = "Patient deleted successfully"
-    return response
+            response['status_code'] = 200
+            response['message'] = "Patient deleted successfully"
+        return response
+    else:
+        response['status_code'] = 400
+        response['message'] = "Wrong Method"
+        return response
 
 
-@app.route("/delete-illness/<int:patient_id>")
+@app.route("/delete-illness/<int:patient_id>", methods=["DELETE"])
 def delete_illness(patient_id):
     response = {}
-    with sqlite3.connect("dentists.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM illness WHERE patient_id=" + str(patient_id))
-        conn.commit()
+    if request.method == "DELETE":
+        with sqlite3.connect("dentists.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM illness WHERE patient_id=" + str(patient_id))
+            conn.commit()
 
-        response['status_code'] = 200
-        response['message'] = "Record deleted successfully"
-    return response
+            response['status_code'] = 200
+            response['message'] = "Record deleted successfully"
+        return response
+    else:
+        response['status_code'] = 400
+        response['message'] = "Wrong Method"
+        return response
 
 
-@app.route('/delete-appointment/<int:patient_id>')
+@app.route('/delete-appointment/<int:patient_id>', methods=["DELETE"])
 def delete_appointment(patient_id):
     response = {}
-    with sqlite3.connect("dentists.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM appointment WHERE patient_id=" + str(patient_id))
-        conn.commit()
+    if request.method == "DELETE":
+        with sqlite3.connect("dentists.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM appointment WHERE patient_id=" + str(patient_id))
+            conn.commit()
 
-        response['status_code'] = 200
-        response['message'] = "Appointment deleted successfully"
-    return response
+            response['status_code'] = 200
+            response['message'] = "Appointment deleted successfully"
+        return response
+    else:
+        response['status_code'] = 400
+        response['message'] = "Wrong Method"
+        return response
 
 
 @app.route('/edit-patient/<int:patient_id>', methods=['PUT'])
