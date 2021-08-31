@@ -483,40 +483,22 @@ def delete_appointment(patient_id):
 def edit_patient(patient_id):
     response = {}
     if request.method == "PUT":
-        with sqlite3.connect("dentists.db") as conn:
-            incoming_data = dict(request.json)
-            conn.row_factory = dict_factory
-            put_data = {}
-
-            if incoming_data.get("email") is not None:
-                put_data['email'] = incoming_data.get("email")
-                with sqlite3.connect("dentists.db") as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE patients SET email=? WHERE patient_id=?", (put_data["email"], patient_id))
-                    conn.commit()
-                    response['message'] = "Updated email was successfully"
-                    response['status_code'] = 200
-                return response
-            if incoming_data.get("address") is not None:
-                put_data['address'] = incoming_data.get("address")
-                with sqlite3.connect("dentists.db") as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE patients SET address=? WHERE patient_id=?",
-                                   (put_data["address"], patient_id))
-                    conn.commit()
-                    response['message'] = "Update successfully"
-                    response['status_code'] = 200
-                return response
-            if incoming_data.get("phone_num") is not None:
-                put_data['phone_num'] = incoming_data.get("phone_num")
-                with sqlite3.connect("dentists.db") as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE patients SET phone_num=? WHERE patient_id=?",
-                                   (put_data["phone_num"], patient_id))
-                    conn.commit()
-                    response['message'] = "Update successfully"
-                    response['status_code'] = 200
-                return response
+        try:
+            with sqlite3.connect("dentists.db") as conn:
+                email = request.json['email']
+                phone_num = request.json['phone_num']
+                address = request.json['address']
+                cursor = conn.cursor()
+                cursor.execute("UPDATE patients SET email=?, phone_num=?, address=?"
+                               "WHERE patient_id=?", (email, phone_num, address, patient_id))
+                conn.commit()
+                response['message'] = "Update was successful"
+                response['status_code'] = 200
+            return response
+        except ValueError:
+            response['error'] = "Failed"
+            response['status_code'] = 400
+            return response
     else:
         if request.method != "PUT":
             response['message'] = "Wrong method"
@@ -526,39 +508,23 @@ def edit_patient(patient_id):
 @app.route('/edit-illness/<int:patient_id>', methods=["PUT"])
 def edit_illness(patient_id):
     response = {}
+    name = request.json['name']
+    description = request.json['description']
+    i_type = request.json['type']
     if request.method == "PUT":
-        with sqlite3.connect("dentists.db") as conn:
-            incoming_data = dict(request.json)
-            conn.row_factory = dict_factory
-            put_data = {}
-            if incoming_data.get("name") is not None:
-                put_data["name"] = incoming_data.get("name")
-                with sqlite3.connect("dentists.db") as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE illness SET name=? WHERE patient_id=?",
-                                   (put_data["name"], patient_id))
-                    conn.commit()
-                    response['message'] = "Update successfully"
-                    response['status_code'] = 200
-                return response
-            if incoming_data.get("type") is not None:
-                put_data["type"] = incoming_data.get("type")
-                with sqlite3.connect("dentists.db") as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE illness SET type=? WHERE patient_id=?",
-                                   (put_data["type"], patient_id))
-                    response['message'] = "Update successfully"
-                    response['status_code'] = 200
-                return response
-            if incoming_data.get("description") is not None:
-                put_data["description"] = incoming_data.get("description")
-                with sqlite3.connect("dentists.db") as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE illness SET description=? WHERE patient_id=?",
-                                   (put_data["description"], patient_id))
-                    response['message'] = "Update successfully"
-                    response['status_code'] = 200
-                return response
+        try:
+            with sqlite3.connect("dentists.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute("UPDATE illness SET name=?, description=?, type=?"
+                               "WHERE patient_id=?", (name, description, i_type))
+                conn.commit()
+                response['message'] = "Update was successful"
+                response['status_code'] = 200
+            return response
+        except ValueError:
+            response['error'] = "Failed"
+            response['status_code'] = 400
+            return response
     else:
         if request.method != "PUT":
             response['message'] = "Wrong method"
@@ -568,49 +534,26 @@ def edit_illness(patient_id):
 @app.route('/edit-appointment/<int:patient_id>', methods=["PUT"])
 def edit_appointment(patient_id):
     response = {}
+    email = request.json['email']
+    phone_num = request.json['phone_num']
+    a_type = request.json['type']
+    booking_date = request.json['booking_date']
     ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
     if request.method == "PUT":
-        with sqlite3.connect("dentists.db") as conn:
-            incoming_data = dict(request.json)
-            conn.row_factory = dict_factory
-            put_data = {}
-            if incoming_data.get("email") is not None:
-                put_data["email"] = incoming_data.get("email")
-                if re.search(ex, put_data["email"]):
-                    with sqlite3.connect("dentists.db") as conn:
-                        cursor = conn.cursor()
-                        cursor.execute("UPDATE appointments SET email=? WHERE patient_id=?",
-                                       (put_data["email"], patient_id))
-                        response['message'] = "Update successfully"
-                        response['status_code'] = 200
-                    return response
-            if incoming_data.get("phone_num") is not None:
-                put_data["phone_num"] = incoming_data.get("phone_num")
-                with sqlite3.connect("dentists.db") as conn:
+        try:
+            with sqlite3.connect("dentists.db") as conn:
+                if re.search(ex, email):
                     cursor = conn.cursor()
-                    cursor.execute("UPDATE appointments SET phone_num=? WHERE patient_id=?",
-                                   (put_data["phone_num"], patient_id))
-                    response['message'] = "Update successfully"
+                    cursor.execute("UPDATE appointments SET email=?, phone_num=?, type=?, booking_date=?"
+                                   "WHERE patient_id=?", (email, phone_num, a_type, booking_date, patient_id))
+                    conn.commit()
+                    response['message'] = "Update was successful"
                     response['status_code'] = 200
                 return response
-            if incoming_data.get("booking_date") is not None:
-                put_data["booking_date"] = incoming_data.get("booking_date")
-                with sqlite3.connect("dentists.db") as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE appointments SET booking_date=? WHERE patient_id=?",
-                                   (put_data["booking_date"], patient_id))
-                    response['message'] = "Update successfully"
-                    response['status_code'] = 200
-                return response
-            if incoming_data.get("type") is not None:
-                put_data["type"] = incoming_data.get("type")
-                with sqlite3.connect("dentists.db") as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("UPDATE appointments SET type=? WHERE patient_id=?",
-                                   (put_data["type"], patient_id))
-                    response['message'] = "Update successfully"
-                    response['status_code'] = 200
-                return response
+        except ValueError:
+            response['error'] = "Failed"
+            response['status_code'] = 400
+            return response
     else:
         if request.method != "PUT":
             response['message'] = "Wrong method"
