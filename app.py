@@ -387,8 +387,23 @@ def illness(patient_id):
         return response
 
 
+@app.route('/view-illness/', methods=["GET"])
+def view_illness():
+    response = {}
+    if request.method == "GET":
+        with sqlite3.connect("dentists.db") as conn:
+            conn.row_factory = dict_factory
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM illness")
+            ill = cursor.fetchall()
+            response['data'] = ill
+            response['message'] = "Success"
+            response['status_code'] = 200
+        return response
+
+
 @app.route('/view-illness/<int:patient_id>')
-def view_illness(patient_id):
+def fetch_illness(patient_id):
     response = {}
     # a route to view a patients illness
     with sqlite3.connect("dentists.db") as conn:
