@@ -175,15 +175,20 @@ def login():
         username = request.json["username"]
         password = request.json["password"]
 
-        with sqlite3.connect("dentists.db") as conn:
-            conn.row_factory = dict_factory
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM admin WHERE username=? AND password=?", (username, password))
-            admin = cursor.fetchone()
+        try:
+            with sqlite3.connect("dentists.db") as conn:
+                conn.row_factory = dict_factory
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM admin WHERE username=? AND password=?", (username, password))
+                admin = cursor.fetchone()
 
-        response['status_code'] = 200
-        response['data'] = admin
-        return response
+            response['status_code'] = 200
+            response['data'] = admin
+            return response
+        except ValueError:
+            response['error'] = "Invalid"
+            response['status_code'] = 404
+            return response
     else:
         if request.method != "PATCH":
             response['message'] = "Incorrect Method"
