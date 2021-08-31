@@ -400,6 +400,11 @@ def view_illness():
             response['message'] = "Success"
             response['status_code'] = 200
         return response
+    else:
+        if request.method != "GET":
+            response['error'] = "Wrong method"
+            response['status_code'] = 400
+            return response
 
 
 @app.route('/view-illness/<int:patient_id>')
@@ -430,9 +435,10 @@ def delete_patient(patient_id):
             response['message'] = "Patient deleted successfully"
         return response
     else:
-        response['status_code'] = 400
-        response['message'] = "Wrong Method"
-        return response
+        if request.method != "DELETE":
+            response['status_code'] = 400
+            response['message'] = "Wrong Method"
+            return response
 
 
 @app.route("/delete-illness/<int:patient_id>", methods=["DELETE"])
@@ -448,9 +454,10 @@ def delete_illness(patient_id):
             response['message'] = "Record deleted successfully"
         return response
     else:
-        response['status_code'] = 400
-        response['message'] = "Wrong Method"
-        return response
+        if request.method != "DELETE":
+            response['status_code'] = 400
+            response['message'] = "Wrong Method"
+            return response
 
 
 @app.route('/delete-appointment/<int:patient_id>', methods=["DELETE"])
@@ -466,9 +473,10 @@ def delete_appointment(patient_id):
             response['message'] = "Appointment deleted successfully"
         return response
     else:
-        response['status_code'] = 400
-        response['message'] = "Wrong Method"
-        return response
+        if request.method != "DELETE":
+            response['status_code'] = 400
+            response['message'] = "Wrong Method"
+            return response
 
 
 @app.route('/edit-patient/<int:patient_id>', methods=['PUT'])
@@ -509,6 +517,10 @@ def edit_patient(patient_id):
                     response['message'] = "Update successfully"
                     response['status_code'] = 200
                 return response
+    else:
+        if request.method != "PUT":
+            response['message'] = "Wrong method"
+            response['status_code'] = 400
 
 
 @app.route('/edit-illness/<int:patient_id>', methods=["PUT"])
@@ -547,6 +559,10 @@ def edit_illness(patient_id):
                     response['message'] = "Update successfully"
                     response['status_code'] = 200
                 return response
+    else:
+        if request.method != "PUT":
+            response['message'] = "Wrong method"
+            response['status_code'] = 400
 
 
 @app.route('/edit-appointment/<int:patient_id>', methods=["PUT"])
