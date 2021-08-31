@@ -482,19 +482,22 @@ def delete_appointment(patient_id):
 @app.route('/edit-patient/<int:patient_id>', methods=['PUT'])
 def edit_patient(patient_id):
     response = {}
+    email = request.json['email']
+    phone_num = request.json['phone_num']
+    address = request.json['address']
+    # To check if the email is in correct format
+    ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
     if request.method == "PUT":
         try:
             with sqlite3.connect("dentists.db") as conn:
-                email = request.json['email']
-                phone_num = request.json['phone_num']
-                address = request.json['address']
-                cursor = conn.cursor()
-                cursor.execute("UPDATE patients SET email=?, phone_num=?, address=?"
-                               "WHERE patient_id=?", (email, phone_num, address, patient_id))
-                conn.commit()
-                response['message'] = "Update was successful"
-                response['status_code'] = 200
-            return response
+                if re.search(ex, email):
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE patients SET email=?, phone_num=?, address=?"
+                                   "WHERE patient_id=?", (email, phone_num, address, patient_id))
+                    conn.commit()
+                    response['message'] = "Update was successful"
+                    response['status_code'] = 200
+                return response
         except ValueError:
             response['error'] = "Failed"
             response['status_code'] = 400
