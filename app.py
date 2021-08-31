@@ -519,7 +519,7 @@ def edit_illness(patient_id):
             with sqlite3.connect("dentists.db") as conn:
                 cursor = conn.cursor()
                 cursor.execute("UPDATE illness SET name=?, description=?, type=?"
-                               "WHERE patient_id=?", (name, description, i_type))
+                               "WHERE patient_id=?", (name, description, i_type, patient_id))
                 conn.commit()
                 response['message'] = "Update was successful"
                 response['status_code'] = 200
