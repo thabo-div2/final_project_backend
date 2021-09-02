@@ -3,7 +3,7 @@
 from flask import Flask, request
 from flask_mail import Mail, Message
 from flask_cors import CORS
-from datetime import datetime
+
 import sqlite3
 import re
 
@@ -206,7 +206,7 @@ def patient_registration():
     gender = request.json['gender']
     phone_num = request.json['phone_num']
     id_num = request.json['id_num']
-    start_date = datetime.now()
+    start_date = request.json['start_made']
     response = {}
     # to check if email is valid
     ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
@@ -268,7 +268,7 @@ def appointment(patient_id):
     phone_num = request.json['phone_num']
     a_type = request.json['type']
     booking_date = request.json['booking_date']
-    date_made = datetime.now()
+    date_made = request.json['date_made']
     patient_id = patient_id
     # to check if email is valid
     ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
