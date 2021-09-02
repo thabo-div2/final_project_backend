@@ -1,8 +1,11 @@
 # Class 2 Thabo Setsubi
 # Backend for the final Projects
-from flask import Flask, request
+import json
+
+from flask import Flask, request, json
 from flask_mail import Mail, Message
 from flask_cors import CORS
+from werkzeug.exceptions import HTTPException
 
 import sqlite3
 import re
@@ -567,6 +570,29 @@ def edit_appointment(patient_id):
             response['message'] = "Wrong method"
             response['status_code'] = 400
 
+
+@app.errorhandler(HTTPException)
+def handle_exception(e):
+    response = e.get_response()
+    response.data = json.dumps({
+        "code": e.code,
+        "name": e.name,
+        "description": e.description,
+    })
+    response.content_type = "application/json"
+    return response
+
+
+@app.errorhandler(404)
+def handle_exception(e):
+    response = {'status_code': e.code, 'error_message': e.description}
+    return response
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    response = {'status_code': e.code, 'error_message': e.description}
+    return response
 
 if __name__ == "__main__":
     app.run()
