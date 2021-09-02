@@ -505,12 +505,12 @@ def edit_patient(patient_id):
                 return response
         except ValueError:
             response['error'] = "Failed"
-            response['status_code'] = 400
+            response['status_code'] = 404
             return response
     else:
         if request.method != "PUT":
             response['message'] = "Wrong method"
-            response['status_code'] = 400
+            response['status_code'] = 404
 
 
 @app.route('/edit-illness/<int:patient_id>', methods=["PUT"])
@@ -531,7 +531,7 @@ def edit_illness(patient_id):
             return response
         except ValueError:
             response['error'] = "Failed"
-            response['status_code'] = 400
+            response['status_code'] = 404
             return response
     else:
         if request.method != "PUT":
