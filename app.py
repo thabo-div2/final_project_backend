@@ -209,7 +209,6 @@ def patient_registration():
     gender = request.json['gender']
     phone_num = request.json['phone_num']
     id_num = request.json['id_num']
-    start_date = request.json['start_made']
     response = {}
     # to check if email is valid
     ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
@@ -227,10 +226,9 @@ def patient_registration():
                                    "birth_date,"
                                    "gender,"
                                    "phone_num,"
-                                   "id_num,"
-                                   "start_date) VALUES(?,?,?,?,?,?,?,?,?)",
+                                   "id_num) VALUES(?,?,?,?,?,?,?,?)",
                                    (first_name, last_name, address, email, birth_date,
-                                    gender, int(phone_num), int(id_num), start_date))
+                                    gender, int(phone_num), int(id_num), ))
                     conn.commit()
                     msg = Message("Registered Successfully", sender="lifechoiceslotto147@gmail.com", recipients=[email])
                     msg.body = x
