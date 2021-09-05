@@ -12,6 +12,7 @@ import re
 
 
 class Database:
+    # A class to create a database and table
     def __init__(self):
         self.conn = sqlite3.connect("dentists.db")
         self.cursor = self.conn.cursor()
@@ -95,6 +96,7 @@ def dict_factory(cursor, row):
     return d
 
 
+# Initialising my Flask App
 app = Flask(__name__)
 app.debug = True
 # This is to help with the frontend
@@ -109,6 +111,7 @@ app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
 
 
+# To test if there is no errors in my heroku upload
 @app.route('/', methods=['GET'])
 def welcome():
     response = {}
@@ -205,6 +208,7 @@ def login():
 
 @app.route('/patient', methods=['POST'])
 def patient_registration():
+    # a route to register a patient
     first_name = request.json['first_name']
     last_name = request.json['last_name']
     address = request.json['address']
@@ -232,8 +236,9 @@ def patient_registration():
                                    "phone_num,"
                                    "id_num) VALUES(?,?,?,?,?,?,?,?)",
                                    (first_name, last_name, address, email, birth_date,
-                                    gender, int(phone_num), int(id_num), ))
+                                    gender, int(phone_num), int(id_num)))
                     conn.commit()
+                    # Sending an email to the patient
                     msg = Message("Registered Successfully", sender="lifechoiceslotto147@gmail.com", recipients=[email])
                     msg.body = x
                     mail.send(msg)
@@ -270,6 +275,7 @@ def patient_registration():
 
 @app.route('/appointment/<int:patient_id>', methods=["POST"])
 def appointment(patient_id):
+    # a route to make an appointment
     response = {}
     first_name = request.json['first_name']
     last_name = request.json['last_name']
@@ -346,6 +352,7 @@ def fetch_patients():
 
 @app.route('/view-appointment/<int:patient_id>', methods=['GET'])
 def fetch_appointment(patient_id):
+    # a route to check one appointment for a specific patient
     response = {}
     with sqlite3.connect("dentists.db") as conn:
         conn.row_factory = dict_factory
@@ -403,6 +410,7 @@ def illness(patient_id):
 
 @app.route('/view-illness/', methods=["GET"])
 def view_illness():
+    # a route to check all the illnesses that have been recorded
     response = {}
     if request.method == "GET":
         with sqlite3.connect("dentists.db") as conn:
@@ -438,6 +446,7 @@ def fetch_illness(patient_id):
 
 @app.route('/delete-patient/<int:patient_id>', methods=["DELETE"])
 def delete_patient(patient_id):
+    # a route that will delete a patient
     response = {}
     if request.method == "DELETE":
         with sqlite3.connect("dentists.db") as conn:
@@ -457,6 +466,7 @@ def delete_patient(patient_id):
 
 @app.route("/delete-illness/<int:patient_id>", methods=["DELETE"])
 def delete_illness(patient_id):
+    # a route that will delete an illness that was recorded
     response = {}
     if request.method == "DELETE":
         with sqlite3.connect("dentists.db") as conn:
@@ -476,6 +486,7 @@ def delete_illness(patient_id):
 
 @app.route('/delete-appointment/<int:patient_id>', methods=["DELETE"])
 def delete_appointment(patient_id):
+    # a route that will delete an appointment
     response = {}
     if request.method == "DELETE":
         with sqlite3.connect("dentists.db") as conn:
@@ -495,6 +506,7 @@ def delete_appointment(patient_id):
 
 @app.route('/edit-patient/<int:patient_id>', methods=['PUT'])
 def edit_patient(patient_id):
+    # a route that can edit information of the patient
     response = {}
     email = request.json['email']
     phone_num = request.json['phone_num']
@@ -528,6 +540,7 @@ def edit_patient(patient_id):
 
 @app.route('/edit-illness/<int:patient_id>', methods=["PUT"])
 def edit_illness(patient_id):
+    # a route that can change the details of the illness
     response = {}
     name = request.json['name']
     description = request.json['description']
@@ -554,6 +567,7 @@ def edit_illness(patient_id):
 
 @app.route('/edit-appointment/<int:patient_id>', methods=["PUT"])
 def edit_appointment(patient_id):
+    # a route that can update the appointment in case the patient needs to change to change certain details
     response = {}
     email = request.json['email']
     phone_num = request.json['phone_num']
@@ -587,6 +601,7 @@ def edit_appointment(patient_id):
 
 @app.errorhandler(HTTPException)
 def handle_exception(e):
+    # this handles all the errors is non-specific
     response = e.get_response()
     response.data = json.dumps({
         "code": e.code,
@@ -599,14 +614,17 @@ def handle_exception(e):
 
 @app.errorhandler(404)
 def handle_exception(e):
+    # this specifically handles 404 errors
     response = {'status_code': e.code, 'error_message': e.description}
     return response
 
 
 @app.errorhandler(500)
 def internal_server_error(e):
+    # this specifically handles 500 errors
     response = {'status_code': e.code, 'error_message': e.description}
     return response
+
 
 if __name__ == "__main__":
     app.run()
