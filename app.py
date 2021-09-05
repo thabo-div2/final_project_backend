@@ -242,14 +242,18 @@ def patient_registration():
                         "birth date": birth_date,
                         "gender": gender,
                         "phone number": phone_num,
-                        "id number": id_num,
-                        "start date": start_date
+                        "id number": id_num
                     }
                     response['status_code'] = 201
+                return response
+            else:
+                response['error_message'] = "Invalid Email"
+                response['status_code'] = 404
                 return response
         else:
             if request.method != "POST":
                 response['error'] = "Wrong method, it must be a POST"
+                return response
     except ValueError:
         if phone_num != int or id_num != int:
             response['error_message'] = "Values or not in a number"
