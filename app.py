@@ -151,6 +151,10 @@ def admin_registration():
                         "password": password
                     }
                 return response
+            else:
+                response['error_message'] = "Invalid Email"
+                response['status_code'] = 404
+                return response
         else:
             if request.method != "POST":
                 response['message'] = "Incorrect method"
@@ -507,7 +511,11 @@ def edit_patient(patient_id):
                     conn.commit()
                     response['message'] = "Update was successful"
                     response['status_code'] = 200
-                return response
+                    return response
+                else:
+                    response['error_message'] = "Invalid Email"
+                    response['status_code'] = 404
+                    return response
         except ValueError:
             response['error'] = "Failed"
             response['status_code'] = 404
@@ -562,7 +570,11 @@ def edit_appointment(patient_id):
                     conn.commit()
                     response['message'] = "Update was successful"
                     response['status_code'] = 200
-                return response
+                    return response
+                else:
+                    response['error_message'] = "Invalid Email"
+                    response['status_code'] = 404
+                    return response
         except ValueError:
             response['error'] = "Failed"
             response['status_code'] = 400
