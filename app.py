@@ -190,6 +190,10 @@ def login():
                 conn.row_factory = dict_factory
                 cursor = conn.cursor()
                 cursor.execute("SELECT * FROM admin WHERE username=? AND password=?", (username, password))
+                if username not in conn or password not in conn:
+                    response['status_code'] = 404
+                    response['error_message'] = "Invalid login credentials"
+                    return response
                 admin = cursor.fetchone()
 
             response['status_code'] = 200
