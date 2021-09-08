@@ -239,9 +239,9 @@ def patient_registration():
                                     gender, int(phone_num), int(id_num)))
                     conn.commit()
                     # Sending an email to the patient
-                    msg = Message("Registered Successfully", sender="lifechoiceslotto147@gmail.com", recipients=[email])
-                    msg.body = x
-                    mail.send(msg)
+                    # msg = Message("Registered Successfully", sender="lifechoiceslotto147@gmail.com", recipients=[email])
+                    # msg.body = x
+                    # mail.send(msg)
                     response['message'] = "Registered patient successfully"
                     response['data'] = {
                         "first name": first_name,
