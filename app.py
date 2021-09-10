@@ -296,9 +296,6 @@ def appointment(patient_id):
                                "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?)",
                                (first_name, last_name, email, phone_num, a_type, booking_date, patient_id))
                 conn.commit()
-                msg = Message("Appointment", sender="lifechoiceslotto147@gmail.com", recipients=[email])
-                msg.body = "Appointment was made for:" + str(first_name) + "for the date of " + str(booking_date)
-                mail.send(msg)
                 response['message'] = "appointment made successfully"
                 response['status_code'] = 200
                 response['data'] = {
