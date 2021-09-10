@@ -279,7 +279,6 @@ def appointment(patient_id):
     phone_num = request.json['phone_num']
     a_type = request.json['type']
     booking_date = request.json['booking_date']
-    date_made = request.json['date_made']
     patient_id = patient_id
     # to check if email is valid
     ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
@@ -294,9 +293,8 @@ def appointment(patient_id):
                                "phone_num,"
                                "type,"
                                "booking_date,"
-                               "date_made,"
-                               "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-                               (first_name, last_name, email, phone_num, a_type, booking_date, date_made, patient_id))
+                               "patient_id) VALUES(?, ?, ?, ?, ?, ?, ?)",
+                               (first_name, last_name, email, phone_num, a_type, booking_date, patient_id))
                 conn.commit()
                 msg = Message("Appointment", sender="lifechoiceslotto147@gmail.com", recipients=[email])
                 msg.body = "Appointment was made for:" + str(first_name) + "for the date of " + str(booking_date)
