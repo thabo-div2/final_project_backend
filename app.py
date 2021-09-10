@@ -3,7 +3,6 @@
 import json
 
 from flask import Flask, request, json
-from flask_mail import Mail, Message
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 
@@ -101,14 +100,6 @@ app = Flask(__name__)
 app.debug = True
 # This is to help with the frontend
 CORS(app)
-# Setting up the flask mail
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'lifechoiceslotto147@gmail.com'
-app.config['MAIL_PASSWORD'] = 'lifechoices2021'
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-mail = Mail(app)
 
 
 # To test if there is no errors in my heroku upload
