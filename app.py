@@ -305,7 +305,6 @@ def appointment(patient_id):
                     "email": email,
                     "type": a_type,
                     "booking_date": booking_date,
-                    "date_made": date_made,
                     "patient_id": patient_id
                 }
             return response
